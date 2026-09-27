@@ -2,173 +2,168 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ALTAR | IMPERIAL</title>
-  
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=JetBrains+Mono:wght@300;500;700&display=swap" rel="stylesheet">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Altar — chi paga di più regna</title>
+  <meta name="description" content="Un trono, un solo re. Paga più dell'ultimo e il tuo nome e il tuo decreto prendono il suo posto, davanti a tutti.">
+  <meta name="theme-color" content="#17110f">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://altarprotocol.vercel.app/">
+  <meta property="og:title" content="Altar — chi paga di più regna">
+  <meta property="og:description" content="Un trono, un solo re. Paga più dell'ultimo e prendi il suo posto. Chi osa?">
+  <meta property="og:image" content="https://altarprotocol.vercel.app/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Altar — chi paga di più regna">
+  <meta name="twitter:description" content="Un trono, un solo re. Paga più dell'ultimo e prendi il suo posto.">
+  <meta name="twitter:image" content="https://altarprotocol.vercel.app/og.png">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Manrope:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="noise-bg"></div>
-  <div class="vignette"></div>
-  <div class="gold-ambient"></div>
+  <audio id="altar-audio" loop preload="none" src="altar_protocol_dark_ritual.wav"></audio>
 
-  <audio id="altar-audio" loop>
-      <source src="altar_protocol_dark_ritual.wav" type="audio/wav">
-  </audio>
-
-  <nav class="top-nav fade-in-down">
-    <div class="brand-box">
-        <div class="brand-logo glitch" data-text="ALTAR">ALTAR</div>
-        <div class="brand-sub">PROTOCOL</div>
+  <header class="topbar">
+    <a class="brand" href="/">Altar</a>
+    <div class="topbar-actions">
+      <button id="sound-btn" class="chip" type="button" aria-pressed="false" data-key="sound_off">Suono off</button>
+      <button id="lang-btn" class="chip" type="button" aria-label="Change language">EN</button>
     </div>
-    <div class="status-badge">
-        <span class="dot-pulse"></span> SYSTEM LIVE
+  </header>
+
+  <main>
+    <section class="throne" aria-live="polite">
+      <div class="candle" aria-hidden="true"></div>
+      <p class="throne-lead" data-key="throne_lead">Il trono appartiene a</p>
+      <h1 id="king-name" class="king-name">…</h1>
+      <blockquote id="king-decree" class="decree"></blockquote>
+      <p class="reign">
+        <span id="reign-time"></span>
+        <span id="king-price-line"></span>
+      </p>
+    </section>
+
+    <div class="below">
+      <section class="claim" aria-labelledby="claim-title">
+        <h2 id="claim-title" data-key="claim_title">Prendi il suo posto</h2>
+        <p class="claim-how" data-key="claim_how">Paga più dell'ultimo re: il tuo nome e il tuo decreto sostituiscono i suoi, qui, davanti a tutti. Finché qualcuno non paga più di te.</p>
+
+        <form id="claim-form" novalidate>
+          <div class="field-row">
+            <label class="field">
+              <span data-key="label_alias">Il tuo nome sul trono</span>
+              <input id="user-alias" name="alias" type="text" maxlength="24" autocomplete="nickname" required>
+            </label>
+            <label class="field">
+              <span data-key="label_email">Email (privata, solo per contattarti)</span>
+              <input id="user-email" name="email" type="email" autocomplete="email" required>
+            </label>
+          </div>
+          <label class="field">
+            <span><span data-key="label_decree">Il tuo decreto</span> <span class="count" id="char-count">0/60</span></span>
+            <textarea id="user-decree" name="decree" maxlength="60" rows="2" required></textarea>
+          </label>
+          <p id="form-error" class="form-error" role="alert"></p>
+          <button id="btn-ascend" type="submit" class="btn-primary">
+            <span id="btn-ascend-text" data-key="btn_offer">Prendi il trono</span>
+            <span id="next-price-display" class="btn-price">…</span>
+          </button>
+        </form>
+
+        <div class="share">
+          <p id="share-lead" data-key="share_lead">Sfida qualcuno a detronizzarlo</p>
+          <div class="share-buttons">
+            <button type="button" class="chip" data-share="x">X</button>
+            <button type="button" class="chip" data-share="telegram">Telegram</button>
+            <button type="button" class="chip" data-share="whatsapp">WhatsApp</button>
+            <button type="button" class="chip" data-share="copy" data-key="btn_copy_link">Copia link</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="ledger" aria-labelledby="ledger-title">
+        <div class="raised">
+          <p class="raised-figures"><strong id="total-raised-display">0 €</strong> <span data-key="raised_of">raccolti su 84.000 €</span></p>
+          <div class="raised-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="progress-track">
+            <div class="raised-fill" id="progress-bar"></div>
+          </div>
+          <p class="raised-sub" id="tribute-count"></p>
+        </div>
+
+        <h2 id="ledger-title" data-key="graveyard_title">Re caduti</h2>
+        <ol class="fallen" id="graveyard-list"></ol>
+      </aside>
     </div>
-  </nav>
-
-  <main class="main-layout">
-
-    <section class="status-deck fade-in-up delay-1">
-        <div class="deck-header">
-            <span>LIVELLO SATURAZIONE</span>
-            <span id="total-raised-display" class="gold-num">0.00€</span>
-        </div>
-        <div class="bar-frame">
-            <div class="bar-fill" id="progress-bar">
-                <div class="bar-glow"></div>
-            </div>
-        </div>
-        <div class="deck-footer">
-            <span>TARGET: 85.000€</span>
-            <span>CAPACITY: <span id="percent-display">0%</span></span>
-        </div>
-    </section>
-    
-    <section id="kingBox" class="imperial-card hero-card fade-in-up delay-2">
-      <div class="card-corner top-left"></div>
-      <div class="card-corner top-right"></div>
-      <div class="card-corner bottom-left"></div>
-      <div class="card-corner bottom-right"></div>
-
-      <div class="card-label">DOMINUS ATTUALE</div>
-      
-      <div class="king-content">
-        <h2 id="king-name" class="lux-text">NESSUNO</h2>
-        
-        <div class="decree-wrapper">
-            <span class="quote-mark">“</span>
-            <span id="king-decree" class="decree-text">Il trono attende il suo Re.</span>
-            <span class="quote-mark">”</span>
-        </div>
-
-        <div class="price-tag">
-            <span>TRIBUTO VERSATO</span>
-            <span id="king-price" class="mono-gold">0.00€</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="control-panel fade-in-up delay-3">
-      
-      <div class="input-group">
-        <label>IDENTITÀ</label>
-        <input id="user-alias" type="text" placeholder="INSERISCI ALIAS" class="lux-input" autocomplete="off">
-      </div>
-      
-      <div class="input-group">
-        <label>DECRETO REALE (Max 60)</label>
-        <textarea id="user-decree" placeholder="LA TUA VOLONTÀ..." class="lux-input" maxlength="60" oninput="updateCharCount(this)"></textarea>
-        <div class="char-counter" id="char-count">0/60</div>
-      </div>
-
-      <div class="input-group">
-        <label>CANALE CRITTOGRAFATO</label>
-        <input id="user-email" type="email" placeholder="EMAIL DI CONTATTO" class="lux-input">
-      </div>
-      
-      <button id="btn-ascend" onclick="handleAscension()" class="btn-imperial">
-        <div class="btn-bg"></div>
-        <span class="btn-text">OFFRI TRIBUTO</span>
-        <span id="next-price-display" class="btn-price">...</span>
-      </button>
-    </section>
-
-    <section class="graveyard-section fade-in-up delay-4">
-      <div class="section-divider">
-          <span class="line"></span>
-          <span class="title">MEMORIA DEI CADUTI</span>
-          <span class="line"></span>
-      </div>
-      <div id="graveyard-list" class="graveyard-list">
-          <div class="loading-text">Accesso agli archivi...</div>
-      </div>
-    </section>
-
   </main>
 
-  <footer class="legal-footer fade-in">
-    <p>IMPERIAL ACCESS PROTOCOL [V.2026]</p>
+  <footer class="footer">
+    <nav class="footer-links">
+      <button type="button" data-legal="rules" data-key="link_rules">Regole</button>
+      <button type="button" data-legal="privacy" data-key="link_privacy">Privacy</button>
+      <button type="button" data-legal="terms" data-key="link_terms">Termini</button>
+    </nav>
   </footer>
 
-  <div id="cryptoModal" class="modal-overlay">
-    <div class="modal-card imperial-card">
-        <div class="modal-header">
-            <h3>PAGAMENTO CRIPTO</h3>
-            <span class="close-btn" onclick="closeCryptoModal()">×</span>
-        </div>
-        
-        <div class="modal-body">
-            <p class="instruction">TRASFERISCI ESATTAMENTE:</p>
-            <div class="price-huge lux-text" id="modal-price-display">...</div>
-            
-            <div class="qr-frame">
-                <img id="qr-image" src="" alt="QR Code">
-            </div>
-
-            <div class="wallet-box">
-                <span id="wallet-address" class="mono-gold">...</span>
-                <button onclick="copyAddress()" class="copy-btn">COPIA</button>
-            </div>
-            
-            <div class="verify-box">
-                <label>INCOLLA HASH TRANSAZIONE (TXID)</label>
-                <input type="text" id="tx-hash" placeholder="0x..." class="lux-input center-text">
-                <button id="btn-confirm-payment" onclick="submitPayment()" class="btn-imperial small-btn">CONFERMA</button>
-                <p id="payment-status" class="status-msg"></p>
-            </div>
-        </div>
+  <dialog id="pay-dialog" class="sheet">
+    <div class="sheet-head">
+      <h2 data-key="pay_title">Paga il tributo</h2>
+      <button type="button" class="close" data-close aria-label="Chiudi">×</button>
     </div>
-  </div>
-<div id="cookie-banner" class="cookie-banner fade-in-up">
-    <p>Utilizziamo tecnologie crittografiche per garantire l'integrità del protocollo. <button onclick="acceptCookies()">ACCETTO</button></p>
-</div>
 
-<footer class="legal-footer fade-in">
-    <div class="footer-links">
-        <button onclick="openLegal('privacy')">PRIVACY POLICY</button>
-        <span class="sep">|</span>
-        <button onclick="openLegal('terms')">TERMINI DEL SERVIZIO</button>
-        <span class="sep">|</span>
-        <button onclick="openLegal('cookies')">COOKIE</button>
-    </div>
-    <p>IMPERIAL ACCESS PROTOCOL [V.2026] — TUTTI I DIRITTI RISERVATI</p>
-</footer>
+    <div id="pay-steps">
+      <p class="pay-amount"><strong id="modal-price-display">…</strong> <span id="modal-eth-display"></span></p>
 
-<div id="legal-modal" class="modal-overlay">
-    <div class="modal-card imperial-card">
-        <div class="modal-header">
-            <h3 id="legal-title">TITOLO</h3>
-            <span class="close-btn" onclick="closeLegal()">×</span>
-        </div>
-        <div id="legal-content" class="legal-text-body">
+      <ol class="steps">
+        <li>
+          <p data-key="step_send">Invia almeno questo importo in ETH, POL, USDC, USDT o DAI a questo indirizzo, da Ethereum, Base, Arbitrum, Optimism o Polygon.</p>
+          <div class="wallet">
+            <img id="qr-image" src="" alt="QR code dell'indirizzo" width="132" height="132">
+            <div class="wallet-copy">
+              <code id="wallet-address">0x…</code>
+              <button type="button" class="chip" id="copy-address" data-key="btn_copy">Copia indirizzo</button>
             </div>
+          </div>
+        </li>
+        <li>
+          <label class="field">
+            <span data-key="step_hash">Incolla l'hash della transazione (0x…) quando è confermata</span>
+            <input type="text" id="tx-hash" autocomplete="off" spellcheck="false" placeholder="0x…">
+          </label>
+          <button type="button" id="btn-confirm-payment" class="btn-primary" data-key="btn_confirm">Verifica pagamento</button>
+          <p id="payment-status" class="status" role="status"></p>
+        </li>
+      </ol>
     </div>
-</div>
+
+    <div id="pay-success" hidden>
+      <p class="success-crown" aria-hidden="true">♛</p>
+      <p class="success-title" data-key="success_title">Il trono è tuo.</p>
+      <p class="success-text" data-key="success_text">Ora fallo sapere: più gente ti vede, più dura la sfida.</p>
+      <div class="share-buttons center">
+        <button type="button" class="chip" data-share="x">X</button>
+        <button type="button" class="chip" data-share="telegram">Telegram</button>
+        <button type="button" class="chip" data-share="whatsapp">WhatsApp</button>
+        <button type="button" class="chip" data-share="copy" data-key="btn_copy_link">Copia link</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="legal-dialog" class="sheet">
+    <div class="sheet-head">
+      <h2 id="legal-title"></h2>
+      <button type="button" class="close" data-close aria-label="Chiudi">×</button>
+    </div>
+    <div class="legal-body" id="legal-content"></div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"></div>
+
   <script src="app.js"></script>
 </body>
 </html>
